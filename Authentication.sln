@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32106.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Authentication", "CentralService.Authentication\CentralService.Authentication.csproj", "{58F27749-A2B8-480A-9CB4-486AB7A5416E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Authentication.Core", "CentralService.Authentication.Core\CentralService.Authentication.Core.csproj", "{7F18EA59-2AD9-4696-92F4-5F260E10543C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Authentication.DTO", "CentralService.Authentication.DTO\CentralService.Authentication.DTO.csproj", "{518068EF-ABBD-41AF-B7FF-E181633E7017}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Authentication.Interfaces", "CentralService.Authentication.Interfaces\CentralService.Authentication.Interfaces.csproj", "{6F35B13C-1C12-4114-9BE5-210A8FE19CA8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Authentication.Core.Factories", "CentralService.Authentication.Core.Factories\CentralService.Authentication.Core.Factories.csproj", "{6007E72C-25A7-4A3C-9F05-CFF19316B85F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CentralService.Utility", "CentralService.Utility\CentralService.Utility.csproj", "{B0FDB38C-9231-440C-B43E-56B931217313}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58F27749-A2B8-480A-9CB4-486AB7A5416E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F27749-A2B8-480A-9CB4-486AB7A5416E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F27749-A2B8-480A-9CB4-486AB7A5416E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F27749-A2B8-480A-9CB4-486AB7A5416E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F18EA59-2AD9-4696-92F4-5F260E10543C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F18EA59-2AD9-4696-92F4-5F260E10543C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F18EA59-2AD9-4696-92F4-5F260E10543C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F18EA59-2AD9-4696-92F4-5F260E10543C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{518068EF-ABBD-41AF-B7FF-E181633E7017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{518068EF-ABBD-41AF-B7FF-E181633E7017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{518068EF-ABBD-41AF-B7FF-E181633E7017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{518068EF-ABBD-41AF-B7FF-E181633E7017}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F35B13C-1C12-4114-9BE5-210A8FE19CA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F35B13C-1C12-4114-9BE5-210A8FE19CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F35B13C-1C12-4114-9BE5-210A8FE19CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F35B13C-1C12-4114-9BE5-210A8FE19CA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6007E72C-25A7-4A3C-9F05-CFF19316B85F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6007E72C-25A7-4A3C-9F05-CFF19316B85F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6007E72C-25A7-4A3C-9F05-CFF19316B85F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6007E72C-25A7-4A3C-9F05-CFF19316B85F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0FDB38C-9231-440C-B43E-56B931217313}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0FDB38C-9231-440C-B43E-56B931217313}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0FDB38C-9231-440C-B43E-56B931217313}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0FDB38C-9231-440C-B43E-56B931217313}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {029DBE17-D2B8-4468-9F67-1FE3A675A21C}
+	EndGlobalSection
+EndGlobal
