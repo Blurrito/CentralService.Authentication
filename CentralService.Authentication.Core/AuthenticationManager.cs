@@ -119,19 +119,32 @@ namespace CentralService.Authentication.Core
         private string GenerateRandomString(int Length, string CharSet)
         {
             string ReturnString = string.Empty;
-            Random Random = new Random();
+            List<int> CharacterIndexes = GenerateRandomNumbers(Length, CharSet.Length - 1);
             for (int i = 0; i < Length; i++)
-                ReturnString += CharSet[Random.Next(CharSet.Length)];
+                ReturnString += CharSet[CharacterIndexes[i]];
             return ReturnString;
         }
 
-        private static string GenerateToken()
+        private string GenerateToken()
         {
-            Random NumberGenerator = new Random();
             byte[] TokenBase = new byte[96];
+            List<int> CharacterIndexes = GenerateRandomNumbers(TokenBase.Length, 255);
             for (int i = 0; i < TokenBase.Length; i++)
-                TokenBase[i] = (byte)NumberGenerator.Next(byte.MaxValue + 1);
+                TokenBase[i] = Convert.ToByte(CharacterIndexes[i]);
             return $"NDS{ Convert.ToBase64String(TokenBase) }";
+        }
+
+        private List<int> GenerateRandomNumbers(int Count, int Max)
+        {
+            List<int> Numbers = new List<int>();
+            byte[] Output = new byte[Count * 4];
+
+            using (RandomNumberGenerator Generator = RandomNumberGenerator.Create())
+                Generator.GetBytes(Output);
+
+            for (int i = 0; i < Count; i++)
+                Numbers.Add((BitConverter.ToInt32(Output, i * 4) & 0x7FFFFFFF) % Max);
+            return Numbers;
         }
 
         private string GenerateChallengeResult(UserChallenge Challenge, UserChallengeResult Result, bool IsProof = false)
