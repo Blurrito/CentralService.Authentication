@@ -2,10 +2,10 @@
 using CentralService.Authentication.DTO.Api.Common;
 using CentralService.Authentication.DTO.Api.User;
 using CentralService.Authentication.Interfaces;
-using CentralService.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,49 +22,79 @@ namespace CentralService.Authentication.Core
 
         public AuthenticationManager() { }
 
-        public void GenerateUserChallenge(NasToken Token)
+        public UserChallenge GetUserChallenge(Session Session)
         {
-            UserChallenge Challenge = new UserChallenge(Token, GenerateRandomString(10, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+            if (Session.SessionKey <= 0 || Session.DeviceProfileId <= 0)
+                throw new ArgumentException(nameof(Session), "One or more numerical values of the provided session object are (lower than) zero.");
+
+            if (Session.GameProfileId > 0)
+                lock (_UserChallengeLock)
+                {
+                    _UserChallenges.RemoveAll(x => x.ValidUntil <= DateTime.Now || x.Session.DeviceProfileId == Session.DeviceProfileId);
+
+                    string Token = string.Empty;
+                    do { Token = GenerateToken(); }
+                    while (_UserChallenges.Any(x => x.Token == Token));
+
+                    UserChallenge Challenge = new UserChallenge(GenerateToken(), GenerateRandomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), Session);
+                    _UserChallenges.Add(Challenge);
+                    return Challenge;
+                }
+            else
+                return new UserChallenge(GenerateToken(), GenerateRandomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), Session);
+        }
+
+        public UserChallengeProof ValidateUserChallengeResult(UserChallengeResult Result)
+        {
+            if (Result.Token == null || Result.ClientChallenge == null || Result.ServerChallenge == null || Result.Result == null)
+                throw new ArgumentNullException(nameof(Result), "One or more properties of the provided challenge result object are null.");
+            if (Result.Token == string.Empty || Result.ClientChallenge == string.Empty || Result.ServerChallenge == string.Empty || Result.Result == string.Empty)
+                throw new ArgumentException(nameof(Result), "One or more properties of the provided challenge result object are empty.");
+
             lock (_UserChallengeLock)
             {
-                _UserChallenges.RemoveAll(x => x.ValidUntil < DateTime.Now || x.Address == Token.Address);
-                _UserChallenges.Add(Challenge);
+                _UserChallenges.RemoveAll(x => x.ValidUntil <= DateTime.Now);;
+                UserChallenge ClientChallenge = _UserChallenges.FirstOrDefault(x => x.Token == Result.Token);
+                if (ClientChallenge.Token == null)
+                    throw new KeyNotFoundException("No authentication token could be found for provided challenge result.");
+
+                string ChallengeResult = GenerateChallengeResult(ClientChallenge, Result);
+                if (ChallengeResult != Result.Result)
+                    throw new AuthenticationException("The generated login challenge result does not match the provided login challenge result.");
+                return new UserChallengeProof(ClientChallenge.Session, GenerateChallengeResult(ClientChallenge, Result, true));
             }
         }
 
-        public ApiResponse? GetUserChallenge(string Address)
+        public MatchmakingChallenge GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
         {
-            UserChallenge Challenge = GetExistingUserChallenge(Address);
-            if (Challenge.Address == null)
-                return new ApiResponse(false, null);
-            return new ApiResponse(true, Challenge.GpcmChallenge);
-        }
+            if (GameName == null || Address == null || Port == null)
+                throw new ArgumentNullException();
+            if (GameName == string.Empty || Address == string.Empty || Port == string.Empty)
+                throw new ArgumentException();
+            if (SessionId < 1)
+                throw new ArgumentException(nameof(SessionId), "The provided session ID is lower than 1.");
 
-        public ApiResponse? ValidateUserChallengeResult(string Address, UserChallengeResult Result)
-        {
-            UserChallenge ClientChallenge = GetExistingUserChallenge(Address);
-            string ChallengeResult = GenerateChallengeResult(ClientChallenge, Result);
-            if (ChallengeResult != Result.Result)
-                return new ApiResponse(false, new ApiError(266, "There was an error validating the pre-authentication.", true));
-            return new ApiResponse(true, new UserChallengeProof(ClientChallenge, GenerateChallengeResult(ClientChallenge, Result, true)));
-        }
-
-        public ApiResponse? GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
-        {
-            string ChallengeString;
             lock (_MatchmakingChallengeLock)
             {
                 MatchmakingChallenge ExistingChallenge = _MatchmakingChallenges.FirstOrDefault(x => x.SessionId == SessionId);
                 if (ExistingChallenge.Challenge != null)
                     _MatchmakingChallenges.Remove(ExistingChallenge);
-                ChallengeString = GenerateRandomString(6, "!\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-                _MatchmakingChallenges.Add(new MatchmakingChallenge(SessionId, GameName, $"{ ChallengeString }00{ Address }{ Port }"));
+                string ChallengeString = GenerateRandomString(6, "!\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+                ExistingChallenge = new MatchmakingChallenge(SessionId, GameName, $"{ ChallengeString }00{ Address }{ Port }");
+                _MatchmakingChallenges.Add(ExistingChallenge);
+                return ExistingChallenge;
             }
-            return new ApiResponse(true, ChallengeString);
         }
 
-        public ApiResponse? ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result)
+        public MatchmakingChallengeProof ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result)
         {
+            if (Result.ChallengeResult == null)
+                throw new ArgumentNullException(nameof(Result.ChallengeResult), "The challenge result of the provided result object is null.");
+            if (Result.ChallengeResult == string.Empty)
+                throw new ArgumentException(nameof(Result.ChallengeResult), "The challenge result of the provided result object is empty.");
+            if (Result.SessionId < 1)
+                throw new ArgumentException(nameof(Result.SessionId), "The provided session ID is (lower than) zero.");
+
             bool Passed = false;
             lock (_MatchmakingChallengeLock)
             {
@@ -81,21 +111,10 @@ namespace CentralService.Authentication.Core
                     _MatchmakingChallenges.Remove(ExistingChallenge);
                 }
             }
-            return new ApiResponse(true, Passed);
+            return new MatchmakingChallengeProof(Result.SessionId, Passed);
         }
 
         public void Dispose() { }
-
-        private UserChallenge GetExistingUserChallenge(string Address)
-        {
-            UserChallenge Challenge;
-            lock (_UserChallengeLock)
-            {
-                _UserChallenges.RemoveAll(x => x.ValidUntil < DateTime.Now);
-                Challenge = _UserChallenges.FirstOrDefault(x => x.Address == Address);
-            }
-            return Challenge;
-        }
 
         private string GenerateRandomString(int Length, string CharSet)
         {
@@ -106,18 +125,27 @@ namespace CentralService.Authentication.Core
             return ReturnString;
         }
 
+        private static string GenerateToken()
+        {
+            Random NumberGenerator = new Random();
+            byte[] TokenBase = new byte[96];
+            for (int i = 0; i < TokenBase.Length; i++)
+                TokenBase[i] = (byte)NumberGenerator.Next(byte.MaxValue + 1);
+            return $"NDS{ Convert.ToBase64String(TokenBase) }";
+        }
+
         private string GenerateChallengeResult(UserChallenge Challenge, UserChallengeResult Result, bool IsProof = false)
         {
             //md5sum(md5sum(challenge) + (" " * 48) + authtoken + clientChallenge + serverChallenge + md5sum(challenge))
-            string CompleteChallenge = GenerateMD5Hash(Challenge.NasChallenge);
+            string CompleteChallenge = GenerateMD5Hash(Challenge.Challenge);
             CompleteChallenge += new string(' ', 48);
             CompleteChallenge += Challenge.Token;
             //Generating the proof token is identical other than switching the order of the GPCM client/server challenge
             if (IsProof)
-                CompleteChallenge += Challenge.GpcmChallenge + Result.Challenge;
+                CompleteChallenge += Result.ServerChallenge + Result.ClientChallenge;
             else
-                CompleteChallenge += Result.Challenge + Challenge.GpcmChallenge;
-            CompleteChallenge += GenerateMD5Hash(Challenge.NasChallenge);
+                CompleteChallenge += Result.ClientChallenge + Result.ServerChallenge;
+            CompleteChallenge += GenerateMD5Hash(Challenge.Challenge);
             return GenerateMD5Hash(CompleteChallenge);
         }
 

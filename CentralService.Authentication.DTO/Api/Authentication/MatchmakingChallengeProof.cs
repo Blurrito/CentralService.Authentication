@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace CentralService.Authentication.DTO.Api.Authentication
 {
-    public struct MatchmakingChallengeResult
+    public struct MatchmakingChallengeProof
     {
         public int SessionId { get; set; }
-        public string ChallengeResult { get; set; }
+        public bool Passed { get; set; }
 
-        public MatchmakingChallengeResult(int SessionId, string ChallengeResult)
+        public MatchmakingChallengeProof(int SessionId, bool Passed)
         {
             this.SessionId = SessionId;
-            this.ChallengeResult = ChallengeResult;
+            this.Passed = Passed;
         }
     }
 }

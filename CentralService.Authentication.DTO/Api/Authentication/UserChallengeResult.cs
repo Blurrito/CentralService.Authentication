@@ -8,8 +8,17 @@ namespace CentralService.Authentication.DTO.Api.Authentication
 {
     public struct UserChallengeResult
     {
-        public string NasToken { get; set; }
-        public string Challenge { get; set; }
+        public string Token { get; set; }
+        public string ClientChallenge { get; set; }
+        public string ServerChallenge { get; }
         public string Result { get; set; }
+
+        public UserChallengeResult(string Token, string ClientChallenge, string ServerChallenge, string Result)
+        {
+            this.Token = Token;
+            this.ClientChallenge = ClientChallenge;
+            this.ServerChallenge = ServerChallenge;
+            this.Result = Result;
+        }
     }
 }

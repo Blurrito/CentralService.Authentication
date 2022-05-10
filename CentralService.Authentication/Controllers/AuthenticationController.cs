@@ -15,44 +15,48 @@ namespace CentralService.Authentication.Controllers
     [Route("api/ds/auth")]
     public class AuthenticationController : ControllerBase
     {
-        [HttpPost("generateuserchallenge")]
-        public ActionResult GenerateChallenge(NasToken Token)
-        {
-            using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
-                Manager.GenerateUserChallenge(Token);
-            return Ok();
-        }
-
         [HttpGet("getuserchallenge")]
-        public ActionResult<ApiResponse?> GetChallenge(string Address)
+        public ActionResult<UserChallenge?> GetChallenge(Session Session)
         {
             try
             {
                 using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
-                    return Ok(Manager.GetUserChallenge(Address));
+                    return Ok(Manager.GetUserChallenge(Session));
             }
-            catch
+            catch (KeyNotFoundException)
             {
-                return BadRequest();
+                return NotFound();
+            }
+            catch (Exception Ex)
+            {
+                if (Ex is ArgumentException || Ex is ArgumentNullException)
+                    return BadRequest();
+                return StatusCode(500);
             }
         }
 
         [HttpPost("validateuserchallengeresponse")]
-        public ActionResult<ApiResponse?> ValidateChallengeResponse(string Address, UserChallengeResult Result)
+        public ActionResult<UserChallengeProof> ValidateChallengeResponse(UserChallengeResult Result)
         {
             try
             {
                 using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
-                    return Ok(Manager.ValidateUserChallengeResult(Address, Result));
+                    return Ok(Manager.ValidateUserChallengeResult(Result));
             }
-            catch
+            catch (System.Security.Authentication.AuthenticationException)
             {
-                return BadRequest();
+                return Unauthorized(new ApiError(266, "There was an error validating the pre-authentication.", true));
+            }
+            catch (Exception Ex)
+            {
+                if (Ex is ArgumentException || Ex is ArgumentNullException)
+                    return BadRequest();
+                return StatusCode(500);
             }
         }
 
         [HttpGet("getmatchmakingchallenge")]
-        public ActionResult<ApiResponse?> GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
+        public ActionResult<MatchmakingChallenge> GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
         {
             try
             {
@@ -66,7 +70,7 @@ namespace CentralService.Authentication.Controllers
         }
 
         [HttpPost("validatematchmakingchallengeresult")]
-        public ActionResult<ApiResponse?> ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result)
+        public ActionResult<MatchmakingChallengeProof> ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result)
         {
             try
             {

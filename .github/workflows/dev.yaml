@@ -1,0 +1,76 @@
+name: Development CI/CD
+
+on:
+  push:
+    branches: [ development ]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup build environment
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+      
+      - name: Restore NuGet packages
+        run: dotnet restore ./CentralService.Authentication/CentralService.Authentication.sln
+
+      - name: Build application
+        run: dotnet build ./CentralService.Authentication/CentralService.Authentication.sln -c Release --no-restore
+        
+      - name: Run unit tests
+        run: dotnet test ./CentralService.Authentication/CentralService.Authentication.sln -c Release --no-build
+      
+  sonarcloud:
+    runs-on: windows-latest
+    environment: Development
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+
+      - name: Setup build environment
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+          
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+          
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+          
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Blurrito_CentralService.Authentication" /o:"blurrito" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build ./CentralService.Authentication/CentralService.Authentication.sln -c Release
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

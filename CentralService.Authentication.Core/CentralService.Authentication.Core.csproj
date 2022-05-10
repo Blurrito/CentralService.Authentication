@@ -7,7 +7,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CentralService.Authentication.DTO\CentralService.Authentication.DTO.csproj" />
     <ProjectReference Include="..\CentralService.Authentication.Interfaces\CentralService.Authentication.Interfaces.csproj" />
-    <ProjectReference Include="..\CentralService.Utility\CentralService.Utility.csproj" />
   </ItemGroup>
 
 </Project>

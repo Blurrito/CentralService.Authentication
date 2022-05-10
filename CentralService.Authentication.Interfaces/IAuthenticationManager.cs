@@ -11,10 +11,9 @@ namespace CentralService.Authentication.Interfaces
 {
     public interface IAuthenticationManager : IDisposable
     {
-        void GenerateUserChallenge(NasToken Token);
-        ApiResponse? GetUserChallenge(string Address);
-        ApiResponse? ValidateUserChallengeResult(string Address, UserChallengeResult Result);
-        ApiResponse? GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port);
-        ApiResponse? ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result);
+        UserChallenge GetUserChallenge(Session Session);
+        UserChallengeProof ValidateUserChallengeResult(UserChallengeResult Result);
+        MatchmakingChallenge GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port);
+        MatchmakingChallengeProof ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result);
     }
 }
