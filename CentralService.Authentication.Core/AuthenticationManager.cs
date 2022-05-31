@@ -65,7 +65,7 @@ namespace CentralService.Authentication.Core
             }
         }
 
-        public MatchmakingChallenge GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
+        public MatchmakingChallenge GetMatchmakingChallenge(uint SessionId, string GameName, string Address, string Port)
         {
             if (GameName == null || Address == null || Port == null)
                 throw new ArgumentNullException();

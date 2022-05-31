@@ -9,7 +9,7 @@ namespace CentralService.Authentication.DTO.Api.Authentication
 {
     public struct UserChallengeProof
     {
-        Session Session { get; set; }
+        public Session Session { get; set; }
         public string Proof { get; set; }
         public string LoginToken { get; set; }
 

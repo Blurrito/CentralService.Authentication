@@ -2,11 +2,11 @@
 {
     public struct Session
     {
-        public int SessionKey { get; }
-        public int DeviceProfileId { get; }
-        public int GameProfileId { get; }
-        public string UniqueNickname { get; }
-        public SessionStatus CurrentStatus { get; private set; }
+        public int SessionKey { get; set; }
+        public int DeviceProfileId { get; set; }
+        public int GameProfileId { get; set; }
+        public string UniqueNickname { get; set; }
+        public SessionStatus CurrentStatus { get; set; }
 
         public Session(int SessionKey, int DeviceProfileId, int GameProfileId, string UniqueNickname, SessionStatus CurrentStatus)
         {

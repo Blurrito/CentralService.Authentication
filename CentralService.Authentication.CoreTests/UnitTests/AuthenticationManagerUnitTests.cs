@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace CentralService.Authentication.Core.Tests
+namespace CentralService.Authentication.Core.Tests.UnitTests
 {
-    public class AuthenticationManagerTests
+    public class AuthenticationManagerUnitTests
     {
         [Theory]
         [InlineData(1)]
@@ -84,7 +84,7 @@ namespace CentralService.Authentication.Core.Tests
         [InlineData(1, null, "127.0.0.1", "13000", typeof(ArgumentNullException))]
         [InlineData(1, "pokemondpds", "", "13000", typeof(ArgumentException))]
         [InlineData(0, "pokemondpds", "127.0.0.1", "13000", typeof(ArgumentException))]
-        public void GetMatchmakingChallenge_InvalidInput_ThrowsException(int SessionId, string GameName, string Address, string Port, Type ExpectedException)
+        public void GetMatchmakingChallenge_InvalidInput_ThrowsException(uint SessionId, string GameName, string Address, string Port, Type ExpectedException)
         {
             AuthenticationManager Manager = new AuthenticationManager();
 
@@ -121,7 +121,7 @@ namespace CentralService.Authentication.Core.Tests
         [InlineData(1, null, typeof(ArgumentNullException))]
         [InlineData(1, "", typeof(ArgumentException))]
         [InlineData(0, "Dummy", typeof(ArgumentException))]
-        public void ValidateMatchmakingChallengeResult_InvalidData_ThrowsException(int SessionId, string ChallengeResult, Type ExpectedException)
+        public void ValidateMatchmakingChallengeResult_InvalidData_ThrowsException(uint SessionId, string ChallengeResult, Type ExpectedException)
         {
             AuthenticationManager Manager = new AuthenticationManager();
             MatchmakingChallenge Challenge = Manager.GetMatchmakingChallenge(1, "pokemondpds", "127.0.0.1", "13000");

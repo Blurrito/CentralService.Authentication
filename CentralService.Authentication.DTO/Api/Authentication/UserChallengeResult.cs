@@ -10,7 +10,7 @@ namespace CentralService.Authentication.DTO.Api.Authentication
     {
         public string Token { get; set; }
         public string ClientChallenge { get; set; }
-        public string ServerChallenge { get; }
+        public string ServerChallenge { get; set; }
         public string Result { get; set; }
 
         public UserChallengeResult(string Token, string ClientChallenge, string ServerChallenge, string Result)

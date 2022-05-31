@@ -13,7 +13,7 @@ namespace CentralService.Authentication.Interfaces
     {
         UserChallenge GetUserChallenge(Session Session);
         UserChallengeProof ValidateUserChallengeResult(UserChallengeResult Result);
-        MatchmakingChallenge GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port);
+        MatchmakingChallenge GetMatchmakingChallenge(uint SessionId, string GameName, string Address, string Port);
         MatchmakingChallengeProof ValidateMatchmakingChallengeResult(MatchmakingChallengeResult Result);
     }
 }

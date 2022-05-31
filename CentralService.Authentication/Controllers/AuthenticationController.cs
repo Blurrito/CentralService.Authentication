@@ -15,17 +15,13 @@ namespace CentralService.Authentication.Controllers
     [Route("api/ds/auth")]
     public class AuthenticationController : ControllerBase
     {
-        [HttpGet("getuserchallenge")]
-        public ActionResult<UserChallenge?> GetChallenge(Session Session)
+        [HttpPost("getuserchallenge")]
+        public ActionResult<UserChallenge> GetChallenge(Session Session)
         {
             try
             {
                 using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
                     return Ok(Manager.GetUserChallenge(Session));
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
             }
             catch (Exception Ex)
             {
@@ -47,6 +43,10 @@ namespace CentralService.Authentication.Controllers
             {
                 return Unauthorized(new ApiError(266, "There was an error validating the pre-authentication.", true));
             }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
             catch (Exception Ex)
             {
                 if (Ex is ArgumentException || Ex is ArgumentNullException)
@@ -56,16 +56,18 @@ namespace CentralService.Authentication.Controllers
         }
 
         [HttpGet("getmatchmakingchallenge")]
-        public ActionResult<MatchmakingChallenge> GetMatchmakingChallenge(int SessionId, string GameName, string Address, string Port)
+        public ActionResult<MatchmakingChallenge> GetMatchmakingChallenge(uint SessionId, string GameName, string Address, string Port)
         {
             try
             {
                 using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
                     return Ok(Manager.GetMatchmakingChallenge(SessionId, GameName, Address, Port));
             }
-            catch
+            catch (Exception Ex)
             {
-                return BadRequest();
+                if (Ex is ArgumentException || Ex is ArgumentNullException)
+                    return BadRequest();
+                return StatusCode(500);
             }
         }
 
@@ -77,8 +79,10 @@ namespace CentralService.Authentication.Controllers
                 using (IAuthenticationManager Manager = AuthenticationManagerFactory.GetManager())
                     return Ok(Manager.ValidateMatchmakingChallengeResult(Result));
             }
-            catch
+            catch (Exception Ex)
             {
+                if (Ex is ArgumentException || Ex is ArgumentNullException)
+                    return BadRequest();
                 return BadRequest();
             }
         }

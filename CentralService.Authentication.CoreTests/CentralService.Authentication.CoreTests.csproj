@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CentralService.Authentication.Core\CentralService.Authentication.Core.csproj" />
+    <ProjectReference Include="..\CentralService.Authentication\CentralService.Authentication.csproj" />
   </ItemGroup>
 
 </Project>

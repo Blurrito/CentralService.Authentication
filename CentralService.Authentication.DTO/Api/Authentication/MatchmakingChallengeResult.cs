@@ -8,10 +8,10 @@ namespace CentralService.Authentication.DTO.Api.Authentication
 {
     public struct MatchmakingChallengeResult
     {
-        public int SessionId { get; set; }
+        public uint SessionId { get; set; }
         public string ChallengeResult { get; set; }
 
-        public MatchmakingChallengeResult(int SessionId, string ChallengeResult)
+        public MatchmakingChallengeResult(uint SessionId, string ChallengeResult)
         {
             this.SessionId = SessionId;
             this.ChallengeResult = ChallengeResult;
